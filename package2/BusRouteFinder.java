@@ -5,35 +5,44 @@ import java.util.Scanner;
 import package1.BusData;
 import package1.BusData.Bus;
 
+/**
+ * BusRouteFinder - searches through bus data to find all buses that pass a given stop.
+ *
+ * Usage:
+ *   - Run the program, enter the stop name (village/town/district).
+ *   - The program prints each matching bus with time at that stop and route.
+ */
 public class BusRouteFinder {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        // Get user input
-        System.out.print("Enter current location: ");
-        String fromCity = scanner.nextLine().trim();
+        System.out.print("Enter your stop (village/town/district): ");
+        String stop = scanner.nextLine().trim();
 
-        System.out.print("Enter destination: ");
-        String toCity = scanner.nextLine().trim();
-
-        // Get bus data from package1
         List<Bus> buses = BusData.getBuses();
 
-        // Display matching buses
-        boolean found = false;
-        System.out.println("\nAvailable Buses from " + fromCity + " to " + toCity + ":");
+        int foundCount = 0;
+        System.out.println("\nBuses passing through '" + stop + "':");
 
         for (Bus bus : buses) {
-            if (bus.fromCity.equalsIgnoreCase(fromCity) && bus.toCity.equalsIgnoreCase(toCity)) {
-                System.out.println("Bus: " + bus.busName +
-                                   " | Departure: " + bus.departureTime +
-                                   " | Arrival: " + bus.arrivalTime);
-                found = true;
+            // search the bus stops list (case-insensitive)
+            for (int i = 0; i < bus.stops.size(); i++) {
+                String s = bus.stops.get(i);
+                if (s.equalsIgnoreCase(stop)) {
+                    foundCount++;
+                    String timeAtStop = bus.stopTimes.get(i);
+                    System.out.println(foundCount + ". Bus: " + bus.busNumber
+                                       + " | Route: " + bus.startCity + " --> " + bus.endCity
+                                       + " | Time at " + stop + ": " + timeAtStop);
+                    break; // don't print same bus multiple times if stop repeats
+                }
             }
         }
 
-        if (!found) {
-            System.out.println("No buses available for this route.");
+        if (foundCount == 0) {
+            System.out.println("No buses found passing through this stop in the sample data.");
+        } else {
+            System.out.println("\nTotal buses passing through '" + stop + "': " + foundCount);
         }
 
         scanner.close();
